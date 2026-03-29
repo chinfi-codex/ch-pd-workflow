@@ -1,0 +1,11 @@
+{
+  "name": "ch-pd-workflow",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Codex product workflow skills with install and sync scripts.",
+  "scripts": {
+    "build": "node --experimental-strip-types skills/product-workflow/scripts/gen-skill-docs.ts",
+    "sync": "node tools/run-sync.cjs"
+  }
+}
