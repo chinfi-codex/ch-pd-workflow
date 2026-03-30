@@ -1,4 +1,6 @@
 param(
+  [ValidateSet("codex", "opencode", "both")]
+  [string]$Target = "codex",
   [switch]$Force
 )
 
@@ -14,6 +16,10 @@ function Get-CodexSkillsRoot {
   }
 
   return Join-Path $HOME ".codex\skills"
+}
+
+function Get-OpenCodeSkillsRoot($repoRoot) {
+  return Join-Path $repoRoot ".opencode\skills"
 }
 
 function Get-SkillDirs($rootDir) {
@@ -41,30 +47,55 @@ if (-not (Test-Path $buildScript)) {
 & powershell.exe -ExecutionPolicy Bypass -File $buildScript
 
 $skillsRoot = Get-CodexSkillsRoot
-New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
-
-$legacyTargetDir = Join-Path $skillsRoot "product-workflow"
 $skillDirs = @(Get-SkillDirs $sourceDir)
 
 if ($skillDirs.Count -eq 0) {
   throw "No installable skills found in $sourceDir."
 }
 
-if (Test-Path -LiteralPath $legacyTargetDir) {
-  Remove-Item -LiteralPath $legacyTargetDir -Recurse -Force
+if (($Target -eq "opencode" -or $Target -eq "both") -and -not $repoRoot) {
+  throw "OpenCode target requires running sync.ps1 from a local repository checkout."
 }
 
-foreach ($skillDir in $skillDirs) {
-  $targetDir = Join-Path $skillsRoot $skillDir.Name
-  if (Test-Path -LiteralPath $targetDir) {
-    Remove-Item -LiteralPath $targetDir -Recurse -Force
+if ($Target -eq "codex" -or $Target -eq "both") {
+  $skillsRoots = @(
+    @{
+      Root = Get-CodexSkillsRoot
+      LegacyTarget = Join-Path (Get-CodexSkillsRoot) "product-workflow"
+    }
+  )
+} else {
+  $skillsRoots = @()
+}
+
+if ($Target -eq "opencode" -or $Target -eq "both") {
+  $skillsRoots += @{
+    Root = Get-OpenCodeSkillsRoot $repoRoot
+    LegacyTarget = $null
+  }
+}
+
+foreach ($skillsRoot in $skillsRoots) {
+  New-Item -ItemType Directory -Force -Path $skillsRoot.Root | Out-Null
+
+  if ($skillsRoot.LegacyTarget -and (Test-Path -LiteralPath $skillsRoot.LegacyTarget)) {
+    Remove-Item -LiteralPath $skillsRoot.LegacyTarget -Recurse -Force
   }
 
-  Copy-Item -LiteralPath $skillDir.FullName -Destination $targetDir -Recurse -Force
+  foreach ($skillDir in $skillDirs) {
+    $targetDir = Join-Path $skillsRoot.Root $skillDir.Name
+    if (Test-Path -LiteralPath $targetDir) {
+      Remove-Item -LiteralPath $targetDir -Recurse -Force
+    }
+
+    Copy-Item -LiteralPath $skillDir.FullName -Destination $targetDir -Recurse -Force
+  }
 }
 
 Write-Host ""
 Write-Host "Rebuilt and synced product-workflow skills to:"
-foreach ($skillDir in $skillDirs) {
-  Write-Host (Join-Path $skillsRoot $skillDir.Name)
+foreach ($skillsRoot in $skillsRoots) {
+  foreach ($skillDir in $skillDirs) {
+    Write-Host (Join-Path $skillsRoot.Root $skillDir.Name)
+  }
 }

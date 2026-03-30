@@ -2,9 +2,32 @@
 set -euo pipefail
 
 FORCE=0
-if [[ "${1:-}" == "--force" ]]; then
-  FORCE=1
-fi
+TARGET="codex"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force)
+      FORCE=1
+      shift
+      ;;
+    --target)
+      TARGET="${2:-}"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+case "$TARGET" in
+  codex|opencode|both) ;;
+  *)
+    echo "Invalid --target value: $TARGET" >&2
+    exit 1
+    ;;
+esac
 
 get_codex_skills_root() {
   if [[ -n "${CODEX_HOME:-}" ]]; then
@@ -20,6 +43,10 @@ get_codex_skills_root() {
   printf '%s\n' "$HOME/.codex/skills"
 }
 
+get_opencode_skills_root() {
+  printf '%s\n' "$1/.opencode/skills"
+}
+
 get_skill_dirs() {
   find "$1" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print
 }
@@ -27,9 +54,11 @@ get_skill_dirs() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCAL_SOURCE="$SCRIPT_DIR/skills/product-workflow"
 TEMP_ROOT=""
+REPO_ROOT=""
 
 if [[ -d "$LOCAL_SOURCE" ]]; then
   SOURCE_DIR="$LOCAL_SOURCE"
+  REPO_ROOT="$SCRIPT_DIR"
 else
   TEMP_ROOT="$(mktemp -d)"
   ARCHIVE_URL="https://github.com/chinfi-codex/ch-pd-workflow/archive/refs/heads/main.tar.gz"
@@ -47,10 +76,6 @@ else
   fi
 fi
 
-SKILLS_ROOT="$(get_codex_skills_root)"
-mkdir -p "$SKILLS_ROOT"
-LEGACY_TARGET_DIR="$SKILLS_ROOT/product-workflow"
-
 mapfile -t SKILL_DIRS < <(get_skill_dirs "$SOURCE_DIR")
 
 if [[ "${#SKILL_DIRS[@]}" -eq 0 ]]; then
@@ -58,21 +83,48 @@ if [[ "${#SKILL_DIRS[@]}" -eq 0 ]]; then
   exit 1
 fi
 
+if [[ "$TARGET" == "opencode" || "$TARGET" == "both" ]] && [[ -z "$REPO_ROOT" ]]; then
+  echo "OpenCode target requires running install.sh from a local repository checkout." >&2
+  exit 1
+fi
+
+INSTALL_ROOTS=()
+LEGACY_TARGETS=()
+
+if [[ "$TARGET" == "codex" || "$TARGET" == "both" ]]; then
+  codex_root="$(get_codex_skills_root)"
+  INSTALL_ROOTS+=("$codex_root")
+  LEGACY_TARGETS+=("$codex_root/product-workflow")
+fi
+
+if [[ "$TARGET" == "opencode" || "$TARGET" == "both" ]]; then
+  opencode_root="$(get_opencode_skills_root "$REPO_ROOT")"
+  INSTALL_ROOTS+=("$opencode_root")
+  LEGACY_TARGETS+=("")
+fi
+
 EXISTING_TARGETS=()
-for skill_dir in "${SKILL_DIRS[@]}"; do
-  skill_name="$(basename "$skill_dir")"
-  target_dir="$SKILLS_ROOT/$skill_name"
-  if [[ -e "$target_dir" ]]; then
-    EXISTING_TARGETS+=("$target_dir")
+for idx in "${!INSTALL_ROOTS[@]}"; do
+  install_root="${INSTALL_ROOTS[$idx]}"
+  legacy_target="${LEGACY_TARGETS[$idx]}"
+  mkdir -p "$install_root"
+
+  if [[ -n "$legacy_target" && -e "$legacy_target" ]]; then
+    EXISTING_TARGETS+=("$legacy_target")
   fi
+
+  for skill_dir in "${SKILL_DIRS[@]}"; do
+    skill_name="$(basename "$skill_dir")"
+    target_dir="$install_root/$skill_name"
+    if [[ -e "$target_dir" ]]; then
+      EXISTING_TARGETS+=("$target_dir")
+    fi
+  done
 done
 
-if [[ -e "$LEGACY_TARGET_DIR" || "${#EXISTING_TARGETS[@]}" -gt 0 ]]; then
+if [[ "${#EXISTING_TARGETS[@]}" -gt 0 ]]; then
   if [[ "$FORCE" -ne 1 ]]; then
     echo "Install target already exists:" >&2
-    if [[ -e "$LEGACY_TARGET_DIR" ]]; then
-      echo " - $LEGACY_TARGET_DIR" >&2
-    fi
     for target_dir in "${EXISTING_TARGETS[@]}"; do
       echo " - $target_dir" >&2
     done
@@ -81,24 +133,28 @@ if [[ -e "$LEGACY_TARGET_DIR" || "${#EXISTING_TARGETS[@]}" -gt 0 ]]; then
   fi
 fi
 
-if [[ -e "$LEGACY_TARGET_DIR" ]]; then
-  rm -rf "$LEGACY_TARGET_DIR"
-fi
+for idx in "${!INSTALL_ROOTS[@]}"; do
+  install_root="${INSTALL_ROOTS[$idx]}"
+  legacy_target="${LEGACY_TARGETS[$idx]}"
 
-for target_dir in "${EXISTING_TARGETS[@]}"; do
-  rm -rf "$target_dir"
-done
+  if [[ -n "$legacy_target" && -e "$legacy_target" ]]; then
+    rm -rf "$legacy_target"
+  fi
 
-for skill_dir in "${SKILL_DIRS[@]}"; do
-  skill_name="$(basename "$skill_dir")"
-  target_dir="$SKILLS_ROOT/$skill_name"
-  cp -R "$skill_dir" "$target_dir"
+  for skill_dir in "${SKILL_DIRS[@]}"; do
+    skill_name="$(basename "$skill_dir")"
+    target_dir="$install_root/$skill_name"
+    rm -rf "$target_dir"
+    cp -R "$skill_dir" "$target_dir"
+  done
 done
 
 echo
 echo "Installed product-workflow skills to:"
-for skill_dir in "${SKILL_DIRS[@]}"; do
-  echo "$SKILLS_ROOT/$(basename "$skill_dir")"
+for install_root in "${INSTALL_ROOTS[@]}"; do
+  for skill_dir in "${SKILL_DIRS[@]}"; do
+    echo "$install_root/$(basename "$skill_dir")"
+  done
 done
 echo
 echo "Next steps:"

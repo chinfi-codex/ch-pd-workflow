@@ -1,4 +1,6 @@
 param(
+  [ValidateSet("codex", "opencode", "both")]
+  [string]$Target = "codex",
   [switch]$Force
 )
 
@@ -14,6 +16,10 @@ function Get-CodexSkillsRoot {
   }
 
   return Join-Path $HOME ".codex\skills"
+}
+
+function Get-OpenCodeSkillsRoot($repoRoot) {
+  return Join-Path $repoRoot ".opencode\skills"
 }
 
 function Get-LocalSourceDir {
@@ -59,60 +65,90 @@ function Get-SkillDirs($rootDir) {
 
 $cleanupDir = $null
 $localSource = Get-LocalSourceDir
+$repoRoot = $null
 
 if ($localSource) {
   $sourceDir = $localSource
+  $repoRoot = $PSScriptRoot
 } else {
   $download = Get-RemoteSourceDir
   $sourceDir = $download.SourceDir
   $cleanupDir = $download.TempRoot
 }
 
-$skillsRoot = Get-CodexSkillsRoot
-New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
-
-$legacyTargetDir = Join-Path $skillsRoot "product-workflow"
 $skillDirs = @(Get-SkillDirs $sourceDir)
 
 if ($skillDirs.Count -eq 0) {
   throw "No installable skills found in $sourceDir."
 }
 
-$existingTargets = @()
-foreach ($skillDir in $skillDirs) {
-  $targetDir = Join-Path $skillsRoot $skillDir.Name
-  if (Test-Path -LiteralPath $targetDir) {
-    $existingTargets += $targetDir
+if (($Target -eq "opencode" -or $Target -eq "both") -and -not $repoRoot) {
+  throw "OpenCode target requires running install.ps1 from a local repository checkout."
+}
+
+$installRoots = @()
+if ($Target -eq "codex" -or $Target -eq "both") {
+  $installRoots += @{
+    Name = "Codex"
+    Root = Get-CodexSkillsRoot
+    LegacyTarget = Join-Path (Get-CodexSkillsRoot) "product-workflow"
   }
 }
 
-if ((Test-Path -LiteralPath $legacyTargetDir) -or $existingTargets.Count -gt 0) {
+if ($Target -eq "opencode" -or $Target -eq "both") {
+  $openCodeRoot = Get-OpenCodeSkillsRoot $repoRoot
+  $installRoots += @{
+    Name = "OpenCode"
+    Root = $openCodeRoot
+    LegacyTarget = $null
+  }
+}
+
+$existingTargets = @()
+foreach ($installRoot in $installRoots) {
+  New-Item -ItemType Directory -Force -Path $installRoot.Root | Out-Null
+
+  if ($installRoot.LegacyTarget -and (Test-Path -LiteralPath $installRoot.LegacyTarget)) {
+    $existingTargets += $installRoot.LegacyTarget
+  }
+
+  foreach ($skillDir in $skillDirs) {
+    $targetDir = Join-Path $installRoot.Root $skillDir.Name
+    if (Test-Path -LiteralPath $targetDir) {
+      $existingTargets += $targetDir
+    }
+  }
+}
+
+if ($existingTargets.Count -gt 0) {
   if (-not $Force) {
-    $targetsToReport = @($legacyTargetDir) + $existingTargets | Select-Object -Unique
     Write-Host "Install target already exists:"
-    $targetsToReport | ForEach-Object { Write-Host " - $_" }
+    $existingTargets | Select-Object -Unique | ForEach-Object { Write-Host " - $_" }
     Write-Host "Re-run with -Force to overwrite the installed version."
     exit 1
   }
 }
 
-if (Test-Path -LiteralPath $legacyTargetDir) {
-  Remove-Item -LiteralPath $legacyTargetDir -Recurse -Force
-}
+foreach ($installRoot in $installRoots) {
+  if ($installRoot.LegacyTarget -and (Test-Path -LiteralPath $installRoot.LegacyTarget)) {
+    Remove-Item -LiteralPath $installRoot.LegacyTarget -Recurse -Force
+  }
 
-foreach ($targetDir in $existingTargets | Select-Object -Unique) {
-  Remove-Item -LiteralPath $targetDir -Recurse -Force
-}
-
-foreach ($skillDir in $skillDirs) {
-  $targetDir = Join-Path $skillsRoot $skillDir.Name
-  Copy-Item -LiteralPath $skillDir.FullName -Destination $targetDir -Recurse -Force
+  foreach ($skillDir in $skillDirs) {
+    $targetDir = Join-Path $installRoot.Root $skillDir.Name
+    if (Test-Path -LiteralPath $targetDir) {
+      Remove-Item -LiteralPath $targetDir -Recurse -Force
+    }
+    Copy-Item -LiteralPath $skillDir.FullName -Destination $targetDir -Recurse -Force
+  }
 }
 
 Write-Host ""
 Write-Host "Installed product-workflow skills to:"
-foreach ($skillDir in $skillDirs) {
-  Write-Host (Join-Path $skillsRoot $skillDir.Name)
+foreach ($installRoot in $installRoots) {
+  foreach ($skillDir in $skillDirs) {
+    Write-Host (Join-Path $installRoot.Root $skillDir.Name)
+  }
 }
 Write-Host ""
 Write-Host "Next steps:"

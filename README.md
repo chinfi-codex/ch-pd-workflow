@@ -61,17 +61,62 @@ irm https://raw.githubusercontent.com/chinfi-codex/ch-pd-workflow/main/install.p
 curl -fsSL https://raw.githubusercontent.com/chinfi-codex/ch-pd-workflow/main/install.sh | bash
 ```
 
+### OpenCode 项目内安装
+
+如果你想把这套技能同时安装到当前仓库的 OpenCode 项目目录，请在仓库根目录执行本地脚本：
+
+Windows：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target opencode
+```
+
+macOS / Linux：
+
+```bash
+bash ./install.sh --target opencode
+```
+
+如果你想同时安装到 Codex 和 OpenCode：
+
+Windows：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Target both
+```
+
+macOS / Linux：
+
+```bash
+bash ./install.sh --target both
+```
+
+OpenCode 这里使用的是项目内 `skills` 目录，不是 custom commands。这样这些技能会跟随当前仓库一起工作。
+
 ### 安装后会发生什么
 
-安装脚本会把仓库里的 `product-workflow` skill 包复制到你的 Codex skills 目录：
+安装脚本会把仓库里的 4 个子 skill 分别复制到目标目录：
 
 - 优先使用 `$CODEX_HOME/skills`
 - 如果没有设置 `CODEX_HOME`，默认安装到 `~/.codex/skills`
+- 如果目标是 OpenCode，则安装到当前仓库的 `.opencode/skills`
 
-最终目录通常会是：
+Codex 目录通常会是：
 
 ```text
-~/.codex/skills/product-workflow
+~/.codex/skills/ceo
+~/.codex/skills/feature-br
+~/.codex/skills/prd
+~/.codex/skills/pd-review
+```
+
+OpenCode 项目目录通常会是：
+
+```text
+<repo>/.opencode/skills/ceo
+<repo>/.opencode/skills/feature-br
+<repo>/.opencode/skills/prd
+<repo>/.opencode/skills/pd-review
 ```
 
 ## 安装后怎么用
@@ -161,16 +206,28 @@ Windows：
 powershell -ExecutionPolicy Bypass -File .\sync.ps1
 ```
 
+同步到当前仓库的 OpenCode 目录：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\sync.ps1 -Target opencode
+```
+
 macOS / Linux：
 
 ```bash
 bash ./sync.sh
 ```
 
+同步到当前仓库的 OpenCode 目录：
+
+```bash
+bash ./sync.sh --target opencode
+```
+
 同步脚本会自动做两件事：
 
 1. 重新生成各个 `SKILL.md`
-2. 把最新内容复制到你的 Codex skills 目录
+2. 把最新内容复制到你的 Codex 和/或 OpenCode skills 目录
 
 
 ## 常见问题
@@ -189,13 +246,19 @@ bash ./sync.sh
 优先是：
 
 ```text
-$CODEX_HOME/skills/product-workflow
+$CODEX_HOME/skills/ceo
 ```
 
 如果没有设置 `CODEX_HOME`，通常是：
 
 ```text
-~/.codex/skills/product-workflow
+~/.codex/skills/ceo
+```
+
+如果你安装到 OpenCode 项目目录，则通常是：
+
+```text
+<repo>/.opencode/skills/ceo
 ```
 
 ### 3. 没装 Node.js 可以用吗
