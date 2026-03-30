@@ -19,6 +19,10 @@ get_codex_skills_root() {
   printf '%s\n' "$HOME/.codex/skills"
 }
 
+get_skill_dirs() {
+  find "$1" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print
+}
+
 if [[ ! -d "$SOURCE_DIR" ]]; then
   echo "Cannot find skills/product-workflow in this repository." >&2
   exit 1
@@ -32,11 +36,26 @@ fi
 bash "$BUILD_SCRIPT"
 
 SKILLS_ROOT="$(get_codex_skills_root)"
-TARGET_DIR="$SKILLS_ROOT/product-workflow"
 mkdir -p "$SKILLS_ROOT"
-rm -rf "$TARGET_DIR"
-cp -R "$SOURCE_DIR" "$TARGET_DIR"
+LEGACY_TARGET_DIR="$SKILLS_ROOT/product-workflow"
+rm -rf "$LEGACY_TARGET_DIR"
+
+mapfile -t SKILL_DIRS < <(get_skill_dirs "$SOURCE_DIR")
+
+if [[ "${#SKILL_DIRS[@]}" -eq 0 ]]; then
+  echo "No installable skills found in $SOURCE_DIR." >&2
+  exit 1
+fi
+
+for skill_dir in "${SKILL_DIRS[@]}"; do
+  skill_name="$(basename "$skill_dir")"
+  target_dir="$SKILLS_ROOT/$skill_name"
+  rm -rf "$target_dir"
+  cp -R "$skill_dir" "$target_dir"
+done
 
 echo
-echo "Rebuilt and synced product-workflow to:"
-echo "$TARGET_DIR"
+echo "Rebuilt and synced product-workflow skills to:"
+for skill_dir in "${SKILL_DIRS[@]}"; do
+  echo "$SKILLS_ROOT/$(basename "$skill_dir")"
+done

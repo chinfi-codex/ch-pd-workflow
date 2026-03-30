@@ -51,6 +51,12 @@ function Get-RemoteSourceDir {
   }
 }
 
+function Get-SkillDirs($rootDir) {
+  return Get-ChildItem -LiteralPath $rootDir -Directory | Where-Object {
+    Test-Path (Join-Path $_.FullName "SKILL.md")
+  }
+}
+
 $cleanupDir = $null
 $localSource = Get-LocalSourceDir
 
@@ -63,25 +69,51 @@ if ($localSource) {
 }
 
 $skillsRoot = Get-CodexSkillsRoot
-$targetDir = Join-Path $skillsRoot "product-workflow"
-
 New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
 
-if (Test-Path $targetDir) {
+$legacyTargetDir = Join-Path $skillsRoot "product-workflow"
+$skillDirs = @(Get-SkillDirs $sourceDir)
+
+if ($skillDirs.Count -eq 0) {
+  throw "No installable skills found in $sourceDir."
+}
+
+$existingTargets = @()
+foreach ($skillDir in $skillDirs) {
+  $targetDir = Join-Path $skillsRoot $skillDir.Name
+  if (Test-Path -LiteralPath $targetDir) {
+    $existingTargets += $targetDir
+  }
+}
+
+if ((Test-Path -LiteralPath $legacyTargetDir) -or $existingTargets.Count -gt 0) {
   if (-not $Force) {
-    Write-Host "Target already exists: $targetDir"
+    $targetsToReport = @($legacyTargetDir) + $existingTargets | Select-Object -Unique
+    Write-Host "Install target already exists:"
+    $targetsToReport | ForEach-Object { Write-Host " - $_" }
     Write-Host "Re-run with -Force to overwrite the installed version."
     exit 1
   }
+}
 
+if (Test-Path -LiteralPath $legacyTargetDir) {
+  Remove-Item -LiteralPath $legacyTargetDir -Recurse -Force
+}
+
+foreach ($targetDir in $existingTargets | Select-Object -Unique) {
   Remove-Item -LiteralPath $targetDir -Recurse -Force
 }
 
-Copy-Item -LiteralPath $sourceDir -Destination $targetDir -Recurse -Force
+foreach ($skillDir in $skillDirs) {
+  $targetDir = Join-Path $skillsRoot $skillDir.Name
+  Copy-Item -LiteralPath $skillDir.FullName -Destination $targetDir -Recurse -Force
+}
 
 Write-Host ""
-Write-Host "Installed product-workflow to:"
-Write-Host $targetDir
+Write-Host "Installed product-workflow skills to:"
+foreach ($skillDir in $skillDirs) {
+  Write-Host (Join-Path $skillsRoot $skillDir.Name)
+}
 Write-Host ""
 Write-Host "Next steps:"
 Write-Host "1. Open Codex and use /ceo, /feature-br, /prd, or /pd-review."
