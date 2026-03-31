@@ -13,7 +13,11 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+{{MODE_GUARD}}
+
 {{PREAMBLE}}
+
+{{ARTIFACT_PATHS}}
 
 {{ASK_FORMAT}}
 
@@ -69,13 +73,6 @@ allowed-tools:
 - `需补充上下文`
 - 或明确建议改用 `/feature-br`
 
-### Artifact 路径
-
-`/change` 的正式产物写入：
-
-```text
-./prd/features/<feature-slug>/change-request-YYYY-MM-DD.md
-```
 
 规则：
 - 同一变更使用新的日期文件，不覆盖旧版本
