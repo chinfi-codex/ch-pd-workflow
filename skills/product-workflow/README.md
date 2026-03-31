@@ -8,6 +8,7 @@
 
 - `ceo/`: 项目级产品判断 skill
 - `feature-br/`: 需求澄清与 Feature Brief skill
+- `change/`: 已有功能的小范围需求更新 skill
 - `prd/`: 正式 PRD 编写 skill
 - `pd-review/`: PRD 交接审查与补齐 skill
 - `shared/fragments/`: 多个 skill 共享的提示词片段
@@ -70,6 +71,7 @@ powershell -ExecutionPolicy Bypass -File .\sync.ps1
 
 - `project memo` -> `./prd/project-memos/project-memo-YYYY-MM-DD.md`
 - `feature brief` -> `./prd/features/<feature-slug>/feature-brief-YYYY-MM-DD.md`
+- `change request` -> `./prd/features/<feature-slug>/change-request-YYYY-MM-DD.md`
 - `PRD` -> `./prd/features/<feature-slug>/prd-YYYY-MM-DD.md`
 - `pd-review-report` -> `./prd/features/<feature-slug>/pd-review-report-YYYY-MM-DD.md`
 
