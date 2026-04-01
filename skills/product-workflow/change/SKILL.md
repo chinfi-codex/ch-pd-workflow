@@ -71,7 +71,7 @@ allowed-tools:
 
 ## `feature-slug` 识别规则
 
-- `feature-slug` 是需求级唯一稳定标识，用于定位 `./prd/features/<feature-slug>/`
+- `feature-slug` 是需求级唯一稳定标识，用于定位 `./prd/features/<feature-slug>/`，默认使用中文
 - 当用户直接提供 `feature-slug` 时，优先按该 slug 定位
 - 当用户提供中文需求名或口语化需求描述时，先在 `./prd/features/` 下做匹配，再决定是否继续
 - 匹配时只使用可解释规则，不使用不可解释的模糊猜测
@@ -91,7 +91,7 @@ allowed-tools:
   - 必须提一个单问题确认，不能自行选择
 - `NO_MATCH`
   - 没有可接受候选
-  - `/feature-br` 可作为新需求处理，但必须先确认新的 `feature-slug`
+  - `/pd-plan` 可作为新需求处理，但必须先确认新的 `feature-slug`
 - `/prd` 与 `/pd-review` 不得擅自新建需求目录，应返回 `需补充上下文` 或 `阻塞`
 
 ## `feature-summary` 使用规则
@@ -108,10 +108,10 @@ allowed-tools:
 
 ## 按命令读取上游的规则
 
-- `/ceo`
+- `/ceo-office`
   - 默认读取最新 `project memo`
   - 仅当用户明确点名某个需求方向时，才进入 `feature-slug` 匹配流程
-- `/feature-br`
+- `/pd-plan`
   - 先读取最新 `project memo`
   - 若命中已有 `feature-slug`，继续读取该目录下已有需求文档
   - 若是新需求，先确认 `feature_name`、`feature-slug` 与本次 `feature-summary`，再产出文档
@@ -151,7 +151,7 @@ allowed-tools:
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
 - `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
-- `feature-slug` 是需求级稳定标识，一经建立不因中文标题调整而改变
+- `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围
 - `feature-summary` 只用于文件名，不替代 `feature-slug` 的稳定标识作用
 - 同一份文档写入时必须显式给出 `feature-summary`；缺失时应先确认，不允许静默省略
@@ -270,7 +270,7 @@ allowed-tools:
 
 你是存量功能优化阶段的产品需求更新器。
 
-你不负责重新发明一个新功能，也不默认重走完整 `/feature-br -> /prd` 链路。  
+你不负责重新发明一个新功能，也不默认重走完整 `/pd-plan -> /prd` 链路。  
 你的职责是基于**已有功能现状**、**已有文档**与**真实反馈**，把一次小范围需求更新收敛成一份可交接、可评审、可执行的变更单。
 
 ---
@@ -290,7 +290,7 @@ allowed-tools:
 - 变更已超出局部更新，开始影响系统主链路、多个角色协作方式或整体产品结构
 
 若判断不适用，应明确建议转向：
-- 新需求探索：`/feature-br`
+- 新需求探索：`/pd-plan`
 - 正式完整文档化：`/prd`
 
 ---
@@ -310,7 +310,7 @@ allowed-tools:
 
 如果无法定位唯一 `feature-slug`，不得擅自新建需求目录。应返回：
 - `需补充上下文`
-- 或明确建议改用 `/feature-br`
+- 或明确建议改用 `/pd-plan`
 
 
 规则：
@@ -357,7 +357,7 @@ allowed-tools:
 
 给出判断：
 - 适合 `/change`
-- 不适合 `/change`，应升级到 `/feature-br` 或 `/prd`
+- 不适合 `/change`，应升级到 `/pd-plan` 或 `/prd`
 
 ### 定义本次 delta
 

@@ -74,7 +74,7 @@ allowed-tools:
 
 ## `feature-slug` 识别规则
 
-- `feature-slug` 是需求级唯一稳定标识，用于定位 `./prd/features/<feature-slug>/`
+- `feature-slug` 是需求级唯一稳定标识，用于定位 `./prd/features/<feature-slug>/`，默认使用中文
 - 当用户直接提供 `feature-slug` 时，优先按该 slug 定位
 - 当用户提供中文需求名或口语化需求描述时，先在 `./prd/features/` 下做匹配，再决定是否继续
 - 匹配时只使用可解释规则，不使用不可解释的模糊猜测
@@ -94,7 +94,7 @@ allowed-tools:
   - 必须提一个单问题确认，不能自行选择
 - `NO_MATCH`
   - 没有可接受候选
-  - `/feature-br` 可作为新需求处理，但必须先确认新的 `feature-slug`
+  - `/pd-plan` 可作为新需求处理，但必须先确认新的 `feature-slug`
 - `/prd` 与 `/pd-review` 不得擅自新建需求目录，应返回 `需补充上下文` 或 `阻塞`
 
 ## `feature-summary` 使用规则
@@ -111,10 +111,10 @@ allowed-tools:
 
 ## 按命令读取上游的规则
 
-- `/ceo`
+- `/ceo-office`
   - 默认读取最新 `project memo`
   - 仅当用户明确点名某个需求方向时，才进入 `feature-slug` 匹配流程
-- `/feature-br`
+- `/pd-plan`
   - 先读取最新 `project memo`
   - 若命中已有 `feature-slug`，继续读取该目录下已有需求文档
   - 若是新需求，先确认 `feature_name`、`feature-slug` 与本次 `feature-summary`，再产出文档
@@ -154,7 +154,7 @@ allowed-tools:
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
 - `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
-- `feature-slug` 是需求级稳定标识，一经建立不因中文标题调整而改变
+- `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围
 - `feature-summary` 只用于文件名，不替代 `feature-slug` 的稳定标识作用
 - 同一份文档写入时必须显式给出 `feature-summary`；缺失时应先确认，不允许静默省略
@@ -231,7 +231,7 @@ allowed-tools:
 - 一个经济模型快照
 - 一个战略判断
 
-只有在信息足够、链路清楚、前提对齐时，才允许输出简洁的 `CEO Memo`。
+只有在信息足够、链路清楚、前提对齐时，才允许输出简洁的 `Project Memo`。
 
 ---
 
@@ -432,7 +432,7 @@ allowed-tools:
 - 当前最该做的 top-level 决策
 - 继续 / 暂停 / 缩小 / 转向 的理由
 
-#### D. CEO Memo
+#### D. Project Memo
 只有在关键变量清楚、链路基本闭环、前提对齐时才允许输出。  
 只覆盖：
 - Current Stage
@@ -489,7 +489,7 @@ allowed-tools:
 - Continue Discussion
 - Economic Model Snapshot
 - Strategic Judgment
-- CEO Memo
+- Project Memo
 
 ### 4. Chain Confidence
 - High

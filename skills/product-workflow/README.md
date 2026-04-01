@@ -5,8 +5,8 @@
 
 ## 包含内容
 
-- `ceo/`: 项目级产品判断 skill
-- `feature-br/`: 需求澄清与 Feature Brief skill
+- `ceo-office/`: 顶层商业判断 skill
+- `pd-plan/`: 需求澄清与产品方案收敛 skill
 - `change/`: 已有功能的小范围需求更新 skill
 - `prd/`: 正式 PRD 编写 skill
 - `pd-review/`: PRD 交接审查与补齐 skill
@@ -69,7 +69,7 @@ powershell -ExecutionPolicy Bypass -File .\sync.ps1
 - `pd-review-report` -> `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 
 命名分工：
-- `feature-slug`：稳定、英文、目录级标识，用于归档同一需求
+- `feature-slug`：稳定、中文、目录级标识，用于归档同一需求
 - `feature-summary`：中文、文件级摘要名，用于表达大功能下的具体子功能或本次子范围
 
 补充规则：
