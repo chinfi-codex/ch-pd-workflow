@@ -1,14 +1,24 @@
 ---
-name: change
+name: issue
 version: 0.1.0
-description: 用于对已存在、通常已上线功能做小范围需求更新。适用于局部规则调整、交互优化、入口改动、文案修订、阈值调整、轻量流程修补等存量功能优化场景。输出产物为结构化的需求变更单。不适用于全新功能立项、大范围重构或需要重走 Feature BR 的需求。
+default-mode: DOC_MODE
+default-mode-strict: true
+implementation-mode: IMPLEMENT_MODE
+implementation-mode-requires-explicit-user-approval: true
+implementation-approval-phrases:
+  - 批准写代码
+  - go implement
+  - 开始实现
+description: |
+  Documentation-first issue skill.
+  Default mode is DOC_MODE. Only analyze and document scoped changes unless the
+  user explicitly approves IMPLEMENT_MODE.
 allowed-tools:
   - Read
   - Write
   - Edit
   - Grep
   - Glob
-  - Bash
   - WebSearch
   - AskUserQuestion
 ---
@@ -149,7 +159,7 @@ allowed-tools:
 - 需求级文档统一按 `feature-slug` 归档到 `./prd/features/<feature-slug>/`
 - `feature brief` 写入 `./prd/features/<feature-slug>/<feature-summary>-feature-brief-YYYY-MM-DD.md`
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
-- `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
+- `issue` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 - `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围
@@ -264,7 +274,7 @@ allowed-tools:
 - 若存在假设，必须把假设写成可见条目，而不是隐藏在叙述里。
 - 若存在 tradeoff，必须明确说明选择、放弃项与原因。
 
-# /change
+# /issue
 
 ## 你的角色
 
@@ -295,7 +305,7 @@ allowed-tools:
 
 ---
 
-## `/change` 补充规则
+## `/issue` 补充规则
 
 ### 读取上下文
 
@@ -320,7 +330,7 @@ allowed-tools:
 
 ### 规模判断
 
-当出现以下任一信号时，应停止按 `/change` 继续推进，并升级为更完整流程：
+当出现以下任一信号时，应停止按 `/issue` 继续推进，并升级为更完整流程：
 - 需要新增完整新模块，而不是修改现有模块
 - 需要引入新的核心角色、核心对象或主流程分支
 - 需要重新定义需求目标、范围边界或主要成功标准
@@ -356,8 +366,8 @@ allowed-tools:
 - 当前影响范围是否仍可被控制在存量功能边界内
 
 给出判断：
-- 适合 `/change`
-- 不适合 `/change`，应升级到 `/pd-plan` 或 `/prd`
+- 适合 `/issue`
+- 不适合 `/issue`，应升级到 `/pd-plan` 或 `/prd`
 
 ### 定义本次 delta
 

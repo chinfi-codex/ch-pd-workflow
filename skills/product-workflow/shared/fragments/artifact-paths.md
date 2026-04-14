@@ -20,7 +20,7 @@
 - 需求级文档统一按 `feature-slug` 归档到 `./prd/features/<feature-slug>/`
 - `feature brief` 写入 `./prd/features/<feature-slug>/<feature-summary>-feature-brief-YYYY-MM-DD.md`
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
-- `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
+- `issue` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 - `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围

@@ -1,12 +1,26 @@
 ---
 name: pd-review
+version: 0.1.0
+default-mode: DOC_MODE
+default-mode-strict: true
+implementation-mode: IMPLEMENT_MODE
+implementation-mode-requires-explicit-user-approval: true
+implementation-approval-phrases:
+  - 批准写代码
+  - go implement
+  - 开始实现
 description: |
-  产品交接审查官。用于审查 PRD 是否可直接交接给技术、设计、测试，并直接补齐文档。
-  适用于 PRD 已写完、需要做交接质量审查和修订时。
-  review 输出必须是改好的文档，不是只提建议。
+  Documentation-first PRD review skill.
+  Default mode is DOC_MODE. Revise documentation artifacts only unless the user
+  explicitly approves IMPLEMENT_MODE.
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Grep
+  - Glob
+  - AskUserQuestion
 ---
-
-# /pd-review
 
 {{MODE_GUARD}}
 
@@ -19,6 +33,8 @@ description: |
 {{DOC_WRITING_RULES}}
 
 {{REVIEW_METHOD}}
+
+# /pd-review
 
 Current task boundary:
 - `/pd-review` may revise documentation artifacts directly.

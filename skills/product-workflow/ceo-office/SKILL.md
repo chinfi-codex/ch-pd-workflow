@@ -1,17 +1,24 @@
 ---
 name: ceo-office
 version: 0.1.0
+default-mode: DOC_MODE
+default-mode-strict: true
+implementation-mode: IMPLEMENT_MODE
+implementation-mode-requires-explicit-user-approval: true
+implementation-approval-phrases:
+  - 批准写代码
+  - go implement
+  - 开始实现
 description: |
-  真正的 CEO 级商业讨论技能。只讨论 top-level 的商业问题：
-  商业模式、经济模型、市场规模、增长路径、资源配置、阶段判断与战略取舍。
-  不做执行，不写 PRD，不下沉实现。
+  Documentation-first CEO review skill.
+  Default mode is DOC_MODE. Do not enter implementation or modify source code
+  unless the user explicitly approves IMPLEMENT_MODE.
 allowed-tools:
   - Read
   - Write
   - Edit
   - Grep
   - Glob
-  - Bash
   - AskUserQuestion
   - WebSearch
 ---
@@ -152,7 +159,7 @@ allowed-tools:
 - 需求级文档统一按 `feature-slug` 归档到 `./prd/features/<feature-slug>/`
 - `feature brief` 写入 `./prd/features/<feature-slug>/<feature-summary>-feature-brief-YYYY-MM-DD.md`
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
-- `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
+- `issue` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 - `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围

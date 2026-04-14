@@ -1,14 +1,28 @@
 ---
 name: pd-review
+version: 0.1.0
+default-mode: DOC_MODE
+default-mode-strict: true
+implementation-mode: IMPLEMENT_MODE
+implementation-mode-requires-explicit-user-approval: true
+implementation-approval-phrases:
+  - 批准写代码
+  - go implement
+  - 开始实现
 description: |
-  产品交接审查官。用于审查 PRD 是否可直接交接给技术、设计、测试，并直接补齐文档。
-  适用于 PRD 已写完、需要做交接质量审查和修订时。
-  review 输出必须是改好的文档，不是只提建议。
+  Documentation-first PRD review skill.
+  Default mode is DOC_MODE. Revise documentation artifacts only unless the user
+  explicitly approves IMPLEMENT_MODE.
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Grep
+  - Glob
+  - AskUserQuestion
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl -->
 <!-- do not edit directly -->
-
-# /pd-review
 
 ## 文档模式
 
@@ -144,7 +158,7 @@ description: |
 - 需求级文档统一按 `feature-slug` 归档到 `./prd/features/<feature-slug>/`
 - `feature brief` 写入 `./prd/features/<feature-slug>/<feature-summary>-feature-brief-YYYY-MM-DD.md`
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
-- `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
+- `issue` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 - `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围
@@ -216,6 +230,8 @@ description: |
   - 一份 `pd-review-report`
 - 只有在存在真实 tradeoff、且无法从现有上下文合理裁决时，才允许提问。
 - 若可以基于项目已有方向做出合理产品裁决，应先修订文档，再记录剩余 concern。
+
+# /pd-review
 
 Current task boundary:
 - `/pd-review` may revise documentation artifacts directly.

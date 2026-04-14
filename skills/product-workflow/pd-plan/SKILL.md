@@ -2,17 +2,24 @@
 name: pd-plan
 preamble-tier: 1
 version: 0.1.0
+default-mode: DOC_MODE
+default-mode-strict: true
+implementation-mode: IMPLEMENT_MODE
+implementation-mode-requires-explicit-user-approval: true
+implementation-approval-phrases:
+  - 批准写代码
+  - go implement
+  - 开始实现
 description: |
-  产品部经理技能。用于在需求已被初步确认值得做之后，
-  将模糊需求澄清、收敛、拆解为可评审、可落地、可直接衔接 PRD 的 `feature brief / 需求方案`。
-  强调先问清需求意义，再按项目阶段选择 MVP、稳定性、拆解或完整性方案。
+  Documentation-first product planning skill.
+  Default mode is DOC_MODE. Produce briefs and planning artifacts first; do not
+  enter implementation unless the user explicitly approves IMPLEMENT_MODE.
 allowed-tools:
   - Read
   - Write
   - Edit
   - Grep
   - Glob
-  - Bash
   - WebSearch
   - AskUserQuestion
 ---
@@ -153,7 +160,7 @@ allowed-tools:
 - 需求级文档统一按 `feature-slug` 归档到 `./prd/features/<feature-slug>/`
 - `feature brief` 写入 `./prd/features/<feature-slug>/<feature-summary>-feature-brief-YYYY-MM-DD.md`
 - `PRD` 写入 `./prd/features/<feature-slug>/<feature-summary>-prd-YYYY-MM-DD.md`
-- `change` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
+- `issue` 写入 `./prd/features/<feature-slug>/<feature-summary>-change-request-YYYY-MM-DD.md`
 - `pd-review-report` 写入 `./prd/features/<feature-slug>/<feature-summary>-pd-review-report-YYYY-MM-DD.md`
 - `feature-slug` 是需求级稳定标识，默认使用中文；一经建立不因标题调整而改变
 - `feature-summary` 是文件级中文摘要名，用于标识大功能下的具体子功能或本次子范围

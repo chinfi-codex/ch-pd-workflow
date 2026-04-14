@@ -7,7 +7,7 @@
 
 - `ceo-office/`: 顶层商业判断 skill
 - `pd-plan/`: 需求澄清与产品方案收敛 skill
-- `change/`: 已有功能的小范围需求更新 skill
+- `issue/`: 已有功能的小范围需求更新 skill
 - `prd/`: 正式 PRD 编写 skill
 - `pd-review/`: PRD 交接审查与补齐 skill
 - `shared/fragments/`: 多个 skill 共享的提示词片段
